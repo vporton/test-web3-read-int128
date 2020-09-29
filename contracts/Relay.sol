@@ -2,7 +2,9 @@
 
 pragma solidity ^0.7.0;
 
-contract Relay {
+import './Proxy.sol';
+
+contract Relay is Proxy {
     address public currentVersion;
     address public owner;
 
@@ -28,13 +30,7 @@ contract Relay {
         owner = _owner;
     }
 
-    fallback() external {
-        address addr = currentVersion;
-        uint size;
-        assembly { size := extcodesize(addr) }
-        require(size > 0);
-
-        (bool success, /*bytes memory result*/) = addr.delegatecall(msg.data);
-        require(success);
+    function _implementation() internal override view returns (address) {
+        return currentVersion;
     }
 }
